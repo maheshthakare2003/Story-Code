@@ -1,0 +1,523 @@
+import java.util.*;
+
+// ========================= DRIVER STORY =========================
+public class OperationFreshSandwich {
+    public static void main(String[] args) {
+        // 1️⃣ Restaurant setup
+        Chef chef = new Chef("Chef Mario", "Head Chef", "C1", new Date());
+        Employee waiter = new Employee("John", "Waiter", "W1", new Date());
+        List<Employee> staff = Arrays.asList(chef, waiter);
+
+        List<FoodITEM> menuItems = Arrays.asList(
+                new FoodITEM("Sandwich", "Snacks"),
+                new FoodITEM("Pasta", "Lunch")
+        );
+        Menu menu = new Menu(new FoodLIST(menuItems), "Lunch", "Active");
+        Restaurant cafe = new Restaurant("CafeCafe", "Mumbai", "Cafe", "Open", staff, menu, new ArrayList<>());
+
+        System.out.println("\n--- Initial Restaurant Setup ---");
+        cafe.showMenu();
+
+        // 2️⃣ Bad Feedback
+        cafe.recordFeedback(chef, 2, "Customer1");
+        cafe.recordFeedback(waiter, 1, "Customer2");
+        System.out.println("\nCustomer Feedback:");
+        cafe.listEmpFeedback();
+
+        // 3️⃣ AI Startup analyzing feedback
+        AiStartup startup = new AiStartup(101, "PixieCollab AI");
+        System.out.println("\nAI Startup analyzing feedback...");
+        System.out.println("AI Summary: 'Improve ingredient quality → Improve ratings'");
+
+        // 4️⃣ Restaurant tries Amazon for ingredients
+        Amazon amazon = new Amazon();
+        System.out.println("\nTrying Amazon Fresh...");
+        amazon.shop(0, 0, 5); // umbrella
+        amazon.shop(1, 1, 2); // bottle
+        System.out.println("But tomatoes & milk are out of stock!");
+
+        // 5️⃣ Farmer Aravinth provides fresh supply
+        Milk cowMilk = new Milk(50);
+        Cow cow = new Cow("Cow", cowMilk);
+        Harvest tomatoHarvest = new Harvest(200);
+        VegetableCrop tomatoes = new VegetableCrop("Tomatoes", tomatoHarvest);
+        Harvest mangoHarvest = new Harvest(300);
+        FruitCrop mangoes = new FruitCrop("Mangoes", mangoHarvest);
+        Farmer farmer = new Farmer("Aravinth", new Farm("Village Farm", tomatoes), cow);
+
+        System.out.println("\nFarmer supplies fresh ingredients:");
+        farmer.showFarmer();
+        cow.showCow();
+        mangoes.showFruitCrop();
+
+        // 6️⃣ Logistics via Aircraft
+        PassengerAircraft aircraft = new PassengerAircraft();
+        aircraft.refuel(new Fuel(3000));
+        System.out.println("\nLoading cow, tomatoes & mangoes onto aircraft...");
+        TicketCounter counter = new TicketCounter();
+        Ticket cargoTicket = counter.issueTicket("Farm Produce + Cow", aircraft.des);
+        cargoTicket.showTicket();
+
+        // 7️⃣ Fresh Menu prepared
+        List<FoodITEM> upgradedItems = Arrays.asList(
+                new FoodITEM("Special Sandwich 2.0", "Snacks"),
+                new FoodITEM("Pasta Deluxe", "Lunch")
+        );
+        cafe.menu = new Menu(new FoodLIST(upgradedItems), "Lunch", "Active");
+        System.out.println("\n--- New Upgraded Menu ---");
+        cafe.showMenu();
+
+        // 8️⃣ Happy Customers
+        cafe.recordFeedback(chef, 5, "Happy Customer");
+        cafe.recordFeedback(waiter, 5, "Regular Customer");
+        System.out.println("\nCustomer Feedback after improvements:");
+        cafe.listEmpFeedback();
+        System.out.println("\n🏆 CafeCafe became the most loved restaurant in town!");
+    }
+}
+
+// ========================= RESTAURANT SYSTEM =========================
+class Restaurant {
+    String name;
+    String location;
+    String type;
+    String status;
+
+    List<Employee> employees;
+    Menu menu;
+    List<Feedback> feedbacks;
+
+    public Restaurant(String name, String location, String type, String status, List<Employee> employees, Menu menu, List<Feedback> feedbacks) {
+        this.name = name;
+        this.location = location;
+        this.type = type;
+        this.status = status;
+        this.employees = employees;
+        this.menu = menu;
+        this.feedbacks = feedbacks;
+    }
+
+    public void listEmpFeedback() {
+        for (Feedback feedback : feedbacks) {
+            System.out.println("Employee: " + feedback.employee.name + " Rating: " + feedback.rating + " by " + feedback.customer);
+        }
+    }
+
+    public void recordFeedback(Employee emp, int rating, String customer) {
+        feedbacks.add(new Feedback(customer, emp, rating));
+    }
+
+    public void showMenu() {
+        System.out.println("Menu:");
+        for (FoodITEM fi : menu.fooditems.foodList) {
+            System.out.println(" - " + fi.name + " (" + fi.type + ")");
+        }
+    }
+}
+
+class Menu {
+    FoodLIST fooditems;
+    String type;
+    String status;
+
+    public Menu(FoodLIST fooditems, String type, String status) {
+        this.fooditems = fooditems;
+        this.type = type;
+        this.status = status;
+    }
+}
+
+class Employee {
+    String name;
+    String designation;
+    String empID;
+    Date joiningDate;
+
+    public Employee(String name, String designation, String empID, Date joiningDate) {
+        this.name = name;
+        this.designation = designation;
+        this.empID = empID;
+        this.joiningDate = joiningDate;
+    }
+}
+
+class Chef extends Employee {
+    public Chef(String name, String designation, String empID, Date joiningDate) {
+        super(name, designation, empID, joiningDate);
+    }
+}
+
+class Feedback {
+    String customer;
+    Employee employee;
+    Integer rating;
+
+    public Feedback(String customer, Employee employee, Integer rating) {
+        this.customer = customer;
+        this.employee = employee;
+        this.rating = rating;
+    }
+}
+
+class FoodITEM {
+    String name;
+    String type;
+
+    public FoodITEM(String name, String type) {
+        this.name = name;
+        this.type = type;
+    }
+}
+
+class FoodLIST {
+    List<FoodITEM> foodList;
+
+    public FoodLIST(List<FoodITEM> foodList) {
+        this.foodList = foodList;
+    }
+}
+
+// ========================= FARMER SYSTEM =========================
+class Farmer {
+    String name;
+    Farm f;
+    Animal a;
+
+    Farmer(String name, Farm f, Animal a) {
+        this.name = name;
+        this.f = f;
+        this.a = a;
+    }
+
+    void showFarmer() {
+        System.out.println("Farmer Name: " + name);
+        f.showFarm();
+        a.showAnimal();
+    }
+}
+
+class Farm {
+    String location;
+    Crop c;
+
+    Farm(String location, Crop c) {
+        this.location = location;
+        this.c = c;
+    }
+
+    void showFarm() {
+        System.out.println("Farm Location: " + location);
+        c.showCrop();
+    }
+}
+
+class Crop {
+    String cropName;
+    Harvest h;
+
+    Crop(String cropName, Harvest h) {
+        this.cropName = cropName;
+        this.h = h;
+    }
+
+    void showCrop() {
+        System.out.println("Crop Name is " + cropName + " harvest up to " + h.showHarvest());
+    }
+}
+
+class VegetableCrop extends Crop {
+    VegetableCrop(String cropName, Harvest h) {
+        super(cropName, h);
+    }
+
+    void showVegetableCrop() {
+        System.out.println("This is a Vegetable Crop: " + cropName);
+    }
+}
+
+class FruitCrop extends Crop {
+    FruitCrop(String cropName, Harvest h) {
+        super(cropName, h);
+    }
+
+    void showFruitCrop() {
+        System.out.println("This is a Fruit Crop: " + cropName);
+    }
+}
+
+class Animal {
+    String animalType;
+
+    Animal(String animalType) {
+        this.animalType = animalType;
+    }
+
+    void showAnimal() {
+        System.out.println("Animal Type is " + animalType);
+    }
+}
+
+class Cow extends Animal {
+    Milk m;
+
+    Cow(String animalType, Milk m) {
+        super(animalType);
+        this.m = m;
+    }
+
+    void showCow() {
+        System.out.println(m.showMilk());
+    }
+}
+
+class Chicken extends Animal {
+    Chicken(String animalType) {
+        super(animalType);
+    }
+
+    void showChicken() {
+        System.out.println("This is a Chicken.");
+    }
+}
+
+class Milk {
+    int quantity;
+
+    Milk(int quantity) {
+        this.quantity = quantity;
+    }
+
+    String showMilk() {
+        return "Milk Produced: " + quantity + " liters";
+    }
+}
+
+class Harvest {
+    int quantity;
+
+    Harvest(int quantity) {
+        this.quantity = quantity;
+    }
+
+    String showHarvest() {
+        return quantity + " kg";
+    }
+}
+
+// ========================= AIRCRAFT SYSTEM =========================
+class Aircraft {}
+
+class PassengerAircraft extends Aircraft {
+    Pilot p = new Pilot("Muskan", 120);
+    Destination des = new Destination("Mumbai");
+    Arrival arr = new Arrival("Village Farm");
+    Fuel fuel;
+
+    void refuel(Fuel f) {
+        this.fuel = f;
+        System.out.println("Aircraft refueled with " + f.total + " litres");
+    }
+}
+
+class Pilot {
+    String name;
+    int hours;
+
+    public Pilot(String name, int hours) {
+        this.name = name;
+        this.hours = hours;
+    }
+}
+
+class Destination {
+    String d;
+    public Destination(String d) {
+        this.d = d;
+    }
+}
+
+class Arrival {
+    String a;
+    public Arrival(String a) {
+        this.a = a;
+    }
+}
+
+class Fuel {
+    float total;
+    public Fuel(float total) {
+        this.total = total;
+    }
+}
+
+class Ticket {
+    String name;
+    Destination destination;
+
+    public Ticket(String name, Destination destination) {
+        this.name = name;
+        this.destination = destination;
+    }
+
+    void showTicket() {
+        System.out.println("Ticket issued to " + name + " for " + destination.d);
+    }
+}
+
+class TicketCounter {
+    Ticket issueTicket(String name, Destination destination) {
+        return new Ticket(name, destination);
+    }
+}
+
+// ========================= AMAZON SYSTEM =========================
+class ProductEcom {
+    String type;
+    int availableQuantity;
+    int price;
+
+    public ProductEcom(String type, int availableQuantity, int price) {
+        this.type = type;
+        this.availableQuantity = availableQuantity;
+        this.price = price;
+    }
+
+    void addToCart(int quantity, RegisteredUser user) {
+        if (availableQuantity < quantity) {
+            System.out.println("Out of stock");
+        } else {
+            availableQuantity -= quantity;
+            System.out.println(user.email + " added " + type + " to cart");
+            System.out.println("Proceed to check out");
+        }
+    }
+}
+
+class Ecommerce {}
+
+class Amazon extends Ecommerce {
+    ProductEcom products[] = {
+            new ProductEcom("umbrella", 20, 400),
+            new ProductEcom("bottle", 80, 240)
+    };
+
+    PaymentGateway upi = new PaymentGateway("upi");
+    RegisteredUser users[] = {
+            new RegisteredUser("john@gmail.com", "john@123"),
+            new RegisteredUser("jane@gmail.com", "jane@123")
+    };
+
+    void shop(int userNumber, int productNumber, int quantity) {
+        products[productNumber].addToCart(quantity, users[userNumber]);
+        int totalCost = upi.payment(products[productNumber], quantity);
+    }
+}
+
+class RegisteredUser {
+    String email;
+    String password;
+    Delivery address = new Delivery("home", "123 Road, Mumbai");
+
+    public RegisteredUser(String email, String password) {
+        this.email = email;
+        this.password = password;
+        System.out.println("User has registered successfully");
+    }
+}
+
+class Delivery {
+    String type;
+    String address;
+
+    public Delivery(String type, String address) {
+        this.type = type;
+        this.address = address;
+    }
+}
+
+class PaymentGateway {
+    String type;
+
+    public PaymentGateway(String type) {
+        this.type = type;
+    }
+
+    public int payment(ProductEcom product, int quantity) {
+        int totalCost = product.price * quantity;
+        System.out.println("Payment of " + totalCost + " done using " + type);
+        return totalCost;
+    }
+}
+
+// ========================= AI STARTUP SYSTEM =========================
+class Enterprise {
+    int enterpriseId;
+    String enterpriseName;
+    Enterprise(int id, String name) {
+        this.enterpriseId = id;
+        this.enterpriseName = name;
+    }
+}
+
+class EmployeeAI {
+    String empName;
+    int empId;
+
+    EmployeeAI(String name, int id) {
+        empName = name;
+        empId = id;
+    }
+    public String toString() {
+        return empName + " (ID: " + empId + ")";
+    }
+}
+
+class Money {
+    String modeOfTransaction;
+    String currency;
+    double amount;
+
+    Money(String mode, String curr, double amt) {
+        modeOfTransaction = mode;
+        currency = curr;
+        amount = amt;
+    }
+}
+
+class Computer {
+    String brand;
+    String specs;
+
+    Computer(String a, String b) {
+        brand = a;
+        specs = b;
+    }
+}
+
+class ProductAI {
+    String productCategory;
+    String productStatus;
+
+    ProductAI(String category, String status) {
+        productCategory = category;
+        productStatus = status;
+    }
+    void showProductDetails() {
+        System.out.println("Product Category : " + productCategory);
+        System.out.println("Product Status   : " + productStatus);
+    }
+}
+
+class AiStartup extends Enterprise {
+    double revenue = 0.0;
+
+    AiStartup(int id, String name) {
+        super(id, name);
+    }
+
+    void genRevenue(ProductAI p, double earned) {
+        revenue += earned;
+        System.out.println("Product '" + p.productCategory + "' generated revenue: " + earned + " Rs.");
+        System.out.println("Total Startup Revenue: " + revenue + " Rs.");
+    }
+}
